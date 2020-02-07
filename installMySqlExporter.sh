@@ -2,7 +2,7 @@ echo Using functions to handle copy paste operations
 
 downloadmySQLExporter () {
 local mySQLVersion=0.12.1
-echo Checking if Node is installed
+echo Checking if mysql_exporter is installed
 local mySQLInstallLocation=/usr/local/bin/mysqld_exporter
 if [ -f "$mySQLInstallLocation" ]; then
   echo mysqld_exporter Already Installed?
@@ -25,18 +25,10 @@ configuremySQLExporter(){
 local serviceUser=mysql_exporter
 local serviceName=mysql_exporter
 local serviceOptions='--config.my-cnf /etc/.mysqld_exporter.cnf --collect.slave_status'
-local serviceBin=/usr/local/bin/$mysql_exporter
-
-#Test if User Exists
-## 
-# -s shell
-# -M No Home
-# -N No Group
+local serviceBin=/usr/local/bin/mysql_exporter
 
 useradd -M --system -N -s /usr/sbin/nologin $serviceUser
-#Server Account
 passwd -l $serviceUser
-
 
 #Service Configuration
 if [ ! -f "/etc/sysconfig/$serviceName" ]; then
@@ -51,12 +43,12 @@ mkdir /etc/sysconfig
 
 cat << EOF > /etc/systemd/system/$serviceName.service
 [Unit]
-Description=Node Exporter
+Description=$serviceName
 
 [Service]
-User=node_exporter
+User=$serviceUser
 EnvironmentFile=/etc/sysconfig/$serviceName
-ExecStart=$serviceBin $OPTIONS
+ExecStart=$serviceBin \$OPTIONS
 
 [Install]
 WantedBy=multi-user.target
